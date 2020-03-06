@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Traits\MultiTenantModelTrait;
 use Carbon\Carbon;
 use Hash;
 use Illuminate\Auth\Notifications\ResetPassword;
@@ -13,7 +14,7 @@ use Laravel\Passport\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use SoftDeletes, Notifiable, HasApiTokens;
+    use SoftDeletes, Notifiable, HasApiTokens, MultiTenantModelTrait;
 
     public $table = 'users';
 
@@ -45,7 +46,11 @@ class User extends Authenticatable
     public function getIsAdminAttribute()
     {
         return $this->roles()->where('id', 1)->exists();
+    }
 
+    public function getIsTeamAdminAttribute()
+    {
+        return $this->is_admin || $this->team_admin;
     }
 
     public function getEmailVerifiedAtAttribute($value)
